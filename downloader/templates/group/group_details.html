@@ -1,0 +1,11 @@
+{% extends "layout/base.html" %}
+{% block content %}
+    <h2>{{ group.name }}</h2>
+    <ul>
+        {% for link in links %}
+        <li>{{ link.url }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'add_link' group.id %}">Add Link</a> |
+    <a href="{% url 'start_group_tasks' group.id %}">Start Tasks</a>
+{% endblock %}

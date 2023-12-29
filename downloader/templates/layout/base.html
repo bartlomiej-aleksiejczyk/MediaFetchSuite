@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="color-scheme" content="dark">
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MediaFetchXpress{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<header>MediaFetchXpress</header>
+<nav>
+    <ul>
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'add_group' %}">Add Group</a></li>
+        <li><a href="{% url 'events' %}">Events</a></li>
+    </ul>
+</nav>
+
+<main class="container mt-4">
+    {% block content %}{% endblock %}
+</main>
+
+<script src="https://unpkg.com/htmx.org@1.9.6"
+        integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
+        crossorigin="anonymous"></script>
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>
