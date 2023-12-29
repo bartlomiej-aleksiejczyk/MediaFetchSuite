@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from downloader.forms.group_form import GroupForm
-from downloader.utils.link_type_strategies_handler import get_strategy
-from mediafetchxpress.models import Group, Link, Event
+from downloader.utils.linktypestrategy.link_type_strategies_handler import get_strategy
+from mediafetchxpress.models import Group, Link
 
 
 def add_group(request):
@@ -29,5 +29,5 @@ def start_group_tasks(request, group_id):
     links = Link.objects.filter(group_id=group_id)
     strategy = get_strategy(group.link_type)
     for link in links:
-        strategy.process_link(link.id)
+        strategy.process_link(link, group.name)
     return redirect(reverse('group_details', args=[group_id]))

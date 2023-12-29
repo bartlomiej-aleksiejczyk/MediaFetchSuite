@@ -115,7 +115,7 @@ dmypy.json
 .vscode/
 
 # JetBrains IDEs
-.idea/
+/.idea/**
 
 # Secrets
 secrets.cfg
