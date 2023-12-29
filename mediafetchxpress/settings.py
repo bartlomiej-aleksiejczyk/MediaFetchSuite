@@ -9,10 +9,12 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import configparser
 import os
 from pathlib import Path
 
 from django.conf import settings
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -130,3 +132,9 @@ HUEY = {
         'worker_type': 'thread',
     },
 }
+
+config = configparser.ConfigParser()
+config.read(os.path.join(BASE_DIR, 'secrets.cfg'))
+S3_SECRET_KEY = config['s3']['SECRET_KEY']
+S3_ACCESS_KEY = config['s3']['ACCESS_KEY']
+S3_URL = config['s3']['URL']

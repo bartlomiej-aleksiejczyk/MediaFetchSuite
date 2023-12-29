@@ -11,7 +11,7 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-downloads/
+downloadz/
 eggs/
 .eggs/
 lib/
@@ -31,10 +31,24 @@ wheels/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+*.db-shm
+*.db-wal
+*.db
+
+# Media files - ignore common formats in download directory
+/downloads/*.jpg
+/downloads/*.jpeg
+/downloads/*.png
+/downloads/*.gif
+/downloads/*.mp3
+/downloads/*.mp4
+/downloads/*.avi
+/downloads/*.mov
+/downloads/*.mkv
+/downloads/*.flac
+/downloads/*.wav
 
 # PyInstaller
-# Usually these files are written by a python script from a template
-# before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -99,3 +113,9 @@ dmypy.json
 
 # VSCode
 .vscode/
+
+# JetBrains IDEs
+.idea/
+
+# Secrets
+secrets.cfg
