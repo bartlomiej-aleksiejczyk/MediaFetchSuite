@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from downloader.forms.group_form import GroupForm
-from downloader.utils.linktypestrategy.link_type_strategies_handler import get_strategy
+from downloader.services.linktypestrategy.link_type_strategies_handler import get_strategy
 from mediafetchxpress.models import Group, Link
 
 

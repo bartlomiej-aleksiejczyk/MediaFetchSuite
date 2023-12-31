@@ -115,7 +115,16 @@ dmypy.json
 .vscode/
 
 # JetBrains IDEs
-/.idea/**
+.idea/
 
 # Secrets
 secrets.cfg
+
+# Util scripts
+list_directory_structure.py
+
+downloader/static/scss/aquawebscss
+downloader/static/css/aquawebscss
+
+**/list_directory_structure.py
+./downloader/static/scss/aquawebscss/list_directory_structure.py

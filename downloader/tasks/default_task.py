@@ -3,8 +3,8 @@ import os
 from huey.contrib.djhuey import task
 from yt_dlp import YoutubeDL
 
-from downloader.utils.s3handler.s3_handler import upload_downloaded_file_to_s3
-from mediafetchxpress.models import Link, Event
+from downloader.services.s3_handler import upload_downloaded_file_to_s3
+from mediafetchxpress.models import Event
 
 
 @task()

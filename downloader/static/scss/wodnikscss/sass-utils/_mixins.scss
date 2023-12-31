@@ -1,5 +1,0 @@
-@mixin media($feature) {
-  @media only screen and (#{$feature}) {
-    @content;
-  }
-}

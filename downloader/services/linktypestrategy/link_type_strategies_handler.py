@@ -1,4 +1,4 @@
-from downloader.utils.linktypestrategy.link_type_strategies import AudioLinkStrategy, VideoLinkStrategy
+from downloader.services.linktypestrategy.link_type_strategies import AudioLinkStrategy, VideoLinkStrategy
 from mediafetchxpress import link_type_choices
 
 

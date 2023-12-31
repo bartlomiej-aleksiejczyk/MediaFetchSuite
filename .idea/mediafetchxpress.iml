@@ -12,8 +12,15 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
+      <excludeFolder url="file://$MODULE_DIR$/downloader/static/css/aquawebscss" />
+      <excludeFolder url="file://$MODULE_DIR$/downloader/static/scss/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/downloadz" />
+      <excludeFolder url="file://$MODULE_DIR$/env" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

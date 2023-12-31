@@ -1,23 +1,26 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta name="color-scheme" content="dark">
+    <meta name="color-scheme" content="light">
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MediaFetchXpress{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
+{% comment %}    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">{% endcomment %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/aquawebscss/main.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
 <header>MediaFetchXpress</header>
-<nav>
-    <ul>
-        <li><a href="{% url 'index' %}">Home</a></li>
-        <li><a href="{% url 'add_group' %}">Add Group</a></li>
-        <li><a href="{% url 'events' %}">Events</a></li>
-    </ul>
+<nav class="navbar-top">
+    <div>
+        <a class="link-navigation" href="{% url 'index' %}">Home</a>
+        <span> | </span>
+        <a class="link-navigation" href="{% url 'add_group' %}">Add Group</a>
+        <span> | </span>
+        <a class="link-navigation" href="{% url 'events' %}">Events</a>
+    </div>
 </nav>
 
 <main class="container mt-4">

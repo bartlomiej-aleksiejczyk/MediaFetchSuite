@@ -1,9 +1,11 @@
 {% extends "layout/base.html" %}
 {% block content %}
 <h2>Add Group</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Add Group</button>
-</form>
+    <div class="form-single-column">
+        <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Group</button>
+        </form>
+    </div>
 {% endblock %}

@@ -1,7 +1,0 @@
-@function encode-svg($color) {
-  // Convert the color to a string and then extract the hex value
-  $color-str: inspect($color); // Convert color to a string
-  $color-hex: str-slice($color-str, 2); // Slice to get hex value without '#'
-
-  @return url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='63' width='117' fill='%23#{$color-hex}'%3E%3Cpath d='M115 2c-1-2-4-2-5 0L59 53 7 2a4 4 0 00-5 5l54 54 2 2 3-2 54-54c2-1 2-4 0-5z'/%3E%3C/svg%3E");
-}
