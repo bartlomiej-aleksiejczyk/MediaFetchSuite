@@ -1,0 +1,32 @@
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.prod
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_TIME_ZONE: ${DJANGO_TIME_ZONE}
+      DJANGO_SETTINGS_MODULE: "core.settings"
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DEBUG: "False"
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+
+    volumes:
+      - sqlite_data:/db
+      - huey_data:/huey_db
+
+  huey_consumer:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.prod
+    command: python manage.py run_huey
+    volumes:
+      - .:/app
+    depends_on:
+      - django
+
+volumes:
+  sqlite_data:
+  huey_data:

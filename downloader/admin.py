@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import DownloadTask, TaskExecutionWindow
 
-# Register your models here.
+admin.site.register(DownloadTask)
+admin.site.register(TaskExecutionWindow)

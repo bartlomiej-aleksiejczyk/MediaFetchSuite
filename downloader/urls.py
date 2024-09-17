@@ -1,14 +1,34 @@
 from django.urls import path
-from downloader.views import groups_views, event_views, group_views, link_views
+from iommi import Form, Table, Column
+
+from .models import DownloadTask, TaskExecutionWindow
+
 urlpatterns = [
-    path('', groups_views.groups_list, name='index'),
-    path('add_group/', group_views.add_group, name='add_group'),
-    path('group/<int:group_id>/', group_views.group_details, name='group_details'),
-    path('group/<int:group_id>/add_link/', link_views.add_link, name='add_link'),
-    path('group/<int:group_id>/start_tasks/', group_views.start_group_tasks, name='start_group_tasks'),
-    path('events/', event_views.events, name='events'),
+    path(
+        "tasks/",
+        Table(
+            auto__model=DownloadTask,
+            columns__delete=Column.delete(),
+        ).as_view(),
+    ),
+    path(
+        "tasks/new/",
+        Form.create(
+            auto__model=DownloadTask,
+            auto__exclude=[
+                "created_at",
+                "updated_at",
+                "priority",
+                "error_message",
+                "state",
+            ],
+        ).as_view(),
+    ),
+    path(
+        "time-windows/",
+        Table(
+            auto__model=TaskExecutionWindow,
+        ).as_view(),
+    ),
+    path("time-windows/new/", Form.create(auto__model=TaskExecutionWindow).as_view()),
 ]
-# TODO: How to signal that group is set to be downloaded
-# TODO: Make a chron job to download at night and stoppign downloading after noon (without stopping current download)
-# TODO: What to do if group is downloaded and new the link is added to it
-# TODO: Batch adding list of links

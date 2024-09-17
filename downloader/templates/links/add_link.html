@@ -1,9 +1,0 @@
-{% extends "layout/base.html" %}
-{% block content %}
-<h2>Add Link to Group</h2>
-<form method="post">
-    {% csrf_token %}
-    <input type="url" name="url" placeholder="URL" required>
-    <button type="submit">Add Link</button>
-</form>
-{% endblock %}

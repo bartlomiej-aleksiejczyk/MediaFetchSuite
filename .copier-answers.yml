@@ -1,0 +1,6 @@
+# Changes here will be overwritten by Copier
+_commit: a95f1d8
+_src_path: gh:bartlomiej-aleksiejczyk/django-template-copier
+choosen_databse: sqlite
+is_huey_enabled: true
+project_name: media-fetch-suite
