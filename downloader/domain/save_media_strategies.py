@@ -2,10 +2,10 @@ import enum
 import os
 import shutil
 import boto3
-from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
+from botocore.exceptions import ClientError
 
 
-def s3_save_strategy(filepath_list):
+def s3_save_strategy(filepath_list, catalogue_name):
     """Function to save files to S3."""
     print("Saving to S3")
 
@@ -14,7 +14,9 @@ def s3_save_strategy(filepath_list):
     aws_session_token = os.environ.get("AWS_SESSION_TOKEN")  # Optional
     s3_bucket = os.environ.get("S3_BUCKET")
     s3_region = os.environ.get("AWS_REGION", "us-east-1")
+    bucket_prefix = os.environ.get("CATALOGUE_PREFIX", "")
 
+    bucket_name = f"{bucket_prefix}{catalogue_name}"
     if not aws_access_key_id or not aws_secret_access_key or not s3_bucket:
         error_message = "Missing AWS credentials or S3 bucket environment variables."
         print(error_message)
@@ -28,10 +30,22 @@ def s3_save_strategy(filepath_list):
             aws_secret_access_key=aws_secret_access_key,
             aws_session_token=aws_session_token,
         )
-    except (NoCredentialsError, PartialCredentialsError) as e:
-        error_message = f"AWS credentials error: {e}"
-        print(error_message)
-        return {"success": False, "error": error_message}
+        if (
+            s3_client.head_bucket(Bucket=bucket_name)["ResponseMetadata"][
+                "HTTPStatusCode"
+            ]
+            != 200
+        ):
+            s3_client.create_bucket(Bucket=bucket_name)
+            print(f"Created bucket {bucket_name}")
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "404":
+            s3_client.create_bucket(Bucket=bucket_name)
+            print(f"Created bucket {bucket_name}")
+        else:
+            error_message = f"Error accessing or creating bucket {bucket_name}: {e}"
+            print(error_message)
+            return {"success": False, "error": error_message}
     except Exception as e:
         error_message = f"Error creating S3 client: {e}"
         print(error_message)
@@ -69,21 +83,30 @@ def s3_save_strategy(filepath_list):
         return {"success": False, "errors": errors}
 
 
-def local_filesystem_save_strategy(filepath_list):
-    """Function to save files to the local filesystem."""
+def local_filesystem_save_strategy(filepath_list, catalogue_name):
+    """Function to save files to the local filesystem, using catalogue_name for directory names."""
     print("Saving to local filesystem")
 
-    destination_path = os.environ.get("DESTINATION_PATH")
+    base_path = os.environ.get("DESTINATION_PATH")
 
-    if not destination_path:
+    if not base_path:
         error_message = "Missing DESTINATION_PATH environment variable."
         print(error_message)
         return {"success": False, "error": error_message}
+    directory_prefix = os.environ.get("CATALOGUE_PREFIX", "")
+
+    directory_name = f"{directory_prefix}{catalogue_name}"
+
+    destination_path = os.path.join(base_path, directory_name)
 
     if not os.path.isdir(destination_path):
-        error_message = f"Destination path does not exist: {destination_path}"
-        print(error_message)
-        return {"success": False, "error": error_message}
+        try:
+            os.makedirs(destination_path)
+            print(f"Created directory {destination_path}")
+        except Exception as e:
+            error_message = f"Failed to create directory {destination_path}: {e}"
+            print(error_message)
+            return {"success": False, "error": error_message}
 
     errors = []
     for filepath in filepath_list:

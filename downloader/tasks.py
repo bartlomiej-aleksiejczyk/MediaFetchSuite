@@ -86,7 +86,7 @@ def process_download_and_save_task(task_id):
         if not save_strategy_func:
             raise ValueError(f"Unknown save strategy: {task.save_strategy}")
 
-        save_result = save_strategy_func(file_paths)
+        save_result = save_strategy_func(file_paths, task.catalogue_name)
 
         if not save_result.get("success"):
             raise SaveError(save_result.get("error", "Unknown error during saving."))

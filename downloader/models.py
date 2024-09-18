@@ -1,7 +1,7 @@
 from django.db import models, transaction
 from django.utils import timezone
-from django.db.models import Max, F
-from django.urls import reverse
+from django.db.models import Max
+from django.core.validators import RegexValidator
 
 from .domain.download_media_strategies import MediaDownloadStrategies
 from .domain.save_media_strategies import MediaSaveStrategies
@@ -9,6 +9,11 @@ from .domain.task_state import TaskState
 from .domain.task_model_services import (
     reorder_priorities_to_updated_task,
     reorder_task_priorities_after_unset,
+)
+
+infrastructure_safe_characters_validator = RegexValidator(
+    regex=r"^[a-z0-9_-]*$",
+    message="Only letters, numbers, dots, underscores, and hyphens are allowed.",
 )
 
 
@@ -31,13 +36,19 @@ class DownloadTask(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     error_message = models.TextField(blank=True, null=True)
+    catalogue_name = models.CharField(
+        blank=True,
+        max_length=255,
+        validators=[infrastructure_safe_characters_validator],
+        help_text="Only letters, numbers, underscores, and hyphens are allowed.",
+    )
 
     class Meta:
         ordering = ["-priority", "created_at"]
 
     def __str__(self):
         return f"Task {self.id}: {self.url}"
-        
+
     @transaction.atomic
     def delete(self, *args, **kwargs):
         super().save(*args, **kwargs)

@@ -1,19 +1,29 @@
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Max
 from django.apps import apps
+
+
+from django.apps import apps
+from django.db import transaction
 
 
 @transaction.atomic
 def reorder_task_priorities_after_unset():
+    print("apud")
     DownloadTask = apps.get_model("downloader", "DownloadTask")
 
     tasks = DownloadTask.objects.all().order_by("priority")
+
+    updated_tasks = []
 
     for index, task in enumerate(tasks):
         new_priority = index + 1
         if task.priority != new_priority:
             task.priority = new_priority
-            task.save()
+            updated_tasks.append(task)
+
+    if updated_tasks:
+        DownloadTask.objects.bulk_update(updated_tasks, ["priority"])
 
 
 @transaction.atomic
