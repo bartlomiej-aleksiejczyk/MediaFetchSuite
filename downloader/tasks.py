@@ -22,18 +22,25 @@ def process_tasks_in_window():
 
     now = timezone.now().time()
 
-    if is_within_time_window(
+    if not is_within_time_window(
         now, task_execution_window.start_time, task_execution_window.end_time
     ):
-        task = (
-            DownloadTask.objects.filter(state=TaskState.PENDING.value)
-            .order_by("-priority", "created_at")
-            .first()
-        )
-        print(task)
-        if task:
+        return
 
-            process_download_and_save_task(task.id)
+    in_progress_exists = DownloadTask.objects.filter(
+        state=TaskState.IN_PROGRESS.value
+    ).exists()
+    if in_progress_exists:
+        return
+
+    task = (
+        DownloadTask.objects.filter(state=TaskState.PENDING.value)
+        .order_by("-priority", "created_at")
+        .first()
+    )
+
+    if task:
+        process_download_and_save_task(task.id)
 
 
 def is_within_time_window(current_time, start_time, end_time):

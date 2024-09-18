@@ -6,6 +6,10 @@ from django.urls import reverse
 from .domain.download_media_strategies import MediaDownloadStrategies
 from .domain.save_media_strategies import MediaSaveStrategies
 from .domain.task_state import TaskState
+from .domain.task_model_services import (
+    reorder_priorities_to_updated_task,
+    reorder_task_priorities_after_unset,
+)
 
 
 class DownloadTask(models.Model):
@@ -33,98 +37,38 @@ class DownloadTask(models.Model):
 
     def __str__(self):
         return f"Task {self.id}: {self.url}"
-
+        
     @transaction.atomic
-    def reorganize_priorities(self):
-        pending_tasks = list(
-            DownloadTask.objects.select_for_update()
-            .filter(state=TaskState.PENDING.value)
-            .order_by("created_at")
-        )
-        for idx, task in enumerate(pending_tasks, start=1):
-            task.priority = idx
-        DownloadTask.objects.bulk_update(pending_tasks, ["priority"])
-
-    @transaction.atomic
-    def insert_priority(self):
-        if self.priority < 1:
-            raise ValueError("Priority must be a positive integer.")
-
-        max_priority = (
-            DownloadTask.objects.filter(state=TaskState.PENDING).aggregate(
-                Max("priority")
-            )["priority__max"]
-            or 0
-        )
-
-        if self.priority > max_priority + 1:
-            self.priority = max_priority + 1
-
-        DownloadTask.objects.filter(
-            state=TaskState.PENDING.value, priority__gte=self.priority
-        ).update(priority=F("priority") + 1)
-
-    @transaction.atomic
-    def update_priority(self, old_priority):
-        if self.priority < 1:
-            raise ValueError("Priority must be a positive integer.")
-
-        if self.priority == old_priority:
-            return
-
-        max_priority = (
-            DownloadTask.objects.filter(state=TaskState.PENDING)
-            .exclude(pk=self.pk)
-            .aggregate(Max("priority"))["priority__max"]
-            or 0
-        )
-
-        if self.priority > max_priority + 1:
-            self.priority = max_priority + 1
-
-        if self.priority < old_priority:
-            DownloadTask.objects.filter(
-                state=TaskState.PENDING,
-                priority__gte=self.priority,
-                priority__lt=old_priority,
-            ).update(priority=F("priority") + 1)
-        else:
-            DownloadTask.objects.filter(
-                state=TaskState.PENDING,
-                priority__gt=old_priority,
-                priority__lte=self.priority,
-            ).update(priority=F("priority") - 1)
+    def delete(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        reorder_task_priorities_after_unset()
 
     @transaction.atomic
     def save(self, *args, **kwargs):
+        print(self)
         is_new = self._state.adding
-        old_state = None
+        is_pending = self.state == TaskState.PENDING.value
+        new_priority = self.priority
 
-        if not is_new:
-            old_state = DownloadTask.objects.get(pk=self.pk).state
+        if is_new and is_pending:
+            new_priority = (
+                DownloadTask.objects.filter(state=TaskState.PENDING.value).aggregate(
+                    Max("priority")
+                )["priority__max"]
+                or 0
+            ) + 1
 
-        if self.state == TaskState.PENDING:
-            if is_new or old_state != TaskState.PENDING:
-                max_priority = (
-                    DownloadTask.objects.filter(state=TaskState.PENDING).aggregate(
-                        Max("priority")
-                    )["priority__max"]
-                    or 0
-                )
-                self.priority = max_priority + 1
-        else:
-            if old_state == TaskState.PENDING:
-                self.priority = None
-                super().save(*args, **kwargs)
-                self.reorganize_priorities()
-                return
-            else:
-                self.priority = None
+        if not is_pending:
+            new_priority = None
 
+        self.priority = new_priority
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse("downloadtask_detail", args=[str(self.id)])
+        if not is_new and is_pending:
+            reorder_priorities_to_updated_task(self)
+
+        if not is_pending:
+            reorder_task_priorities_after_unset()
 
 
 class TaskExecutionWindow(models.Model):

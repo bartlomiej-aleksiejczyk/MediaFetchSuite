@@ -8,7 +8,6 @@ urlpatterns = [
         "tasks/",
         Table(
             auto__model=DownloadTask,
-            columns__delete=Column.delete(),
         ).as_view(),
     ),
     path(
