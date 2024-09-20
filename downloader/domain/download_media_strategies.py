@@ -1,5 +1,6 @@
 import enum
 import os
+import json
 import tempfile
 import logging
 import shutil
@@ -99,7 +100,124 @@ def download_video_playlist_highest_quality(url):
         return {"success": False, "error": error_message}
 
 
+def download_single_audio_highest_quality(url):
+    """
+    Downloads a single audio track at the highest available quality.
+    Returns a dictionary with success status and list of file paths.
+    """
+    print(f"Downloading single audio with highest quality. URL: {url}")
+
+    temp_dir = tempfile.mkdtemp()
+    ydl_opts = {
+        "outtmpl": os.path.join(temp_dir, "%(title)s.%(ext)s"),
+        "format": "bestaudio/best",
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "0",  # This indicates the highest quality
+            }
+        ],
+        "noplaylist": True,
+        "quiet": True,
+        "no_warnings": True,
+        "continuedl": True,
+    }
+
+    file_paths = []
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            print(json.dumps(info_dict))
+            if info_dict:
+                filename = info_dict["requested_downloads"]["filepath"]
+                file_paths.append(filename)
+                print(f"Downloaded audio to {filename}")
+            else:
+                error_message = "Failed to retrieve audio information."
+                logging.error(error_message)
+                shutil.rmtree(temp_dir)
+                return {"success": False, "error": error_message}
+        return {"success": True, "file_paths": file_paths}
+    except (DownloadError, ExtractorError) as e:
+        error_message = f"Error downloading audio: {e}"
+        logging.error(error_message)
+        shutil.rmtree(temp_dir)
+        return {"success": False, "error": error_message}
+    except Exception as e:
+        error_message = f"Unexpected error: {e}"
+        logging.error(error_message)
+        shutil.rmtree(temp_dir)
+        return {"success": False, "error": error_message}
+
+
+def download_audio_playlist_highest_quality(url):
+    """
+    Downloads an audio playlist at the highest available quality and converts it to MP3.
+    Returns a dictionary with success status and list of file paths.
+    """
+    print(f"Downloading audio playlist with highest quality. URL: {url}")
+
+    temp_dir = tempfile.mkdtemp()
+    ydl_opts = {
+        "outtmpl": os.path.join(temp_dir, "%(playlist_index)s-%(title)s.%(ext)s"),
+        "format": "bestaudio/best",
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "0",  # This indicates the highest quality
+            }
+        ],
+        "quiet": True,
+        "no_warnings": True,
+        "continuedl": True,
+    }
+
+    file_paths = []
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            if info_dict and "entries" in info_dict:
+                for entry in info_dict["entries"]:
+                    if entry:
+                        filename = ydl.prepare_filename(entry)
+                        file_paths.append(filename)
+                        print(f"Downloaded audio to {filename}")
+                    else:
+                        error_message = "Failed to retrieve information for one or more playlist entries."
+                        logging.error(error_message)
+                        shutil.rmtree(temp_dir)
+                        return {"success": False, "error": error_message}
+            else:
+                error_message = "Failed to retrieve playlist information."
+                logging.error(error_message)
+                shutil.rmtree(temp_dir)
+                return {"success": False, "error": error_message}
+        return {"success": True, "file_paths": file_paths}
+    except (DownloadError, ExtractorError) as e:
+        error_message = f"Error downloading playlist: {e}"
+        logging.error(error_message)
+        shutil.rmtree(temp_dir)
+        return {"success": False, "error": error_message}
+    except Exception as e:
+        error_message = f"Unexpected error: {e}"
+        logging.error(error_message)
+        shutil.rmtree(temp_dir)
+        return {"success": False, "error": error_message}
+
+
 class MediaDownloadStrategies(enum.Enum):
+    AUDIO_HIGHEST = (
+        "audio_highest",
+        "Downloads single audios using ytdlp with highest available quality.",
+        download_single_audio_highest_quality,
+    )
+    AUDIO_PLAYLIST_HIGHEST = (
+        "audio_playlist_highest",
+        "Downloads audio playlist using ytdlp with highest available quality.",
+        download_audio_playlist_highest_quality,
+    )
     VIDEO_HIGHEST = (
         "video_highest",
         "Downloads single videos using ytdlp with highest available quality.",

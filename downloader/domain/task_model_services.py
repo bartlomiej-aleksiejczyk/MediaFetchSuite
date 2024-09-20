@@ -1,18 +1,23 @@
 from django.db import transaction
 from django.db.models import F, Max
 from django.apps import apps
+from .task_state import TaskState
 
 
-from django.apps import apps
-from django.db import transaction
+@transaction.atomic
+def clean_up_stale_priorities():
+    DownloadTask = apps.get_model("downloader", "DownloadTask")
+    tasks_to_clean_up = DownloadTask.objects.exclude(state=TaskState.PENDING.value)
+    tasks_to_clean_up.update(priority=None)
 
 
 @transaction.atomic
 def reorder_task_priorities_after_unset():
-    print("apud")
     DownloadTask = apps.get_model("downloader", "DownloadTask")
 
-    tasks = DownloadTask.objects.all().order_by("priority")
+    tasks = DownloadTask.objects.filter(state=TaskState.PENDING.value).order_by(
+        "priority"
+    )
 
     updated_tasks = []
 
@@ -43,7 +48,9 @@ def reorder_priorities_to_updated_task(new_task):
         new_task.priority = max_priority + 1
 
     if (
-        DownloadTask.objects.filter(priority=new_task.priority)
+        DownloadTask.objects.filter(
+            priority=new_task.priority, state=TaskState.PENDING.value
+        )
         .exclude(id=new_task.id)
         .exists()
     ):

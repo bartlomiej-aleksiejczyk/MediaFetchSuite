@@ -8,27 +8,29 @@ from botocore.exceptions import ClientError
 def s3_save_strategy(filepath_list, catalogue_name):
     """Function to save files to S3."""
     print("Saving to S3")
-
-    aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
-    aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
-    aws_session_token = os.environ.get("AWS_SESSION_TOKEN")  # Optional
-    s3_bucket = os.environ.get("S3_BUCKET")
-    s3_region = os.environ.get("AWS_REGION", "us-east-1")
+    s3_endpoint_url = os.environ.get("S3_ENDPOINT_URL")
+    s3_access_key_id = os.environ.get("S3_ACCESS_KEY_ID")
+    s3_secret_access_key = os.environ.get("S3_SECRET_ACCESS_KEY")
+    s3_region = os.environ.get("S3_REGION")
+    s3_verify_certificate = not os.getenv(
+        "S3_SELF_SIGNED_CERTIFICATE", "False"
+    ).lower() in ["true", "1", "t", "yes", "y"]
     bucket_prefix = os.environ.get("CATALOGUE_PREFIX", "")
 
     bucket_name = f"{bucket_prefix}{catalogue_name}"
-    if not aws_access_key_id or not aws_secret_access_key or not s3_bucket:
-        error_message = "Missing AWS credentials or S3 bucket environment variables."
+    if not s3_access_key_id or not s3_secret_access_key or not bucket_name:
+        error_message = "Missing S3 credentials or S3 bucket name."
         print(error_message)
         return {"success": False, "error": error_message}
 
     try:
         s3_client = boto3.client(
             "s3",
+            endpoint_url=s3_endpoint_url,
             region_name=s3_region,
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            aws_session_token=aws_session_token,
+            aws_access_key_id=s3_access_key_id,
+            aws_secret_access_key=s3_secret_access_key,
+            verify=s3_verify_certificate,
         )
         if (
             s3_client.head_bucket(Bucket=bucket_name)["ResponseMetadata"][
@@ -55,8 +57,8 @@ def s3_save_strategy(filepath_list, catalogue_name):
     for filepath in filepath_list:
         try:
             filename = os.path.basename(filepath)
-            s3_client.upload_file(filepath, s3_bucket, filename)
-            print(f"Uploaded {filename} to S3 bucket {s3_bucket}.")
+            s3_client.upload_file(filepath, bucket_name, filename)
+            print(f"Uploaded {filename} to S3 bucket {bucket_name}.")
         except ClientError as e:
             error_message = f"Failed to upload {filepath} to S3: {e}"
             print(error_message)
@@ -87,10 +89,10 @@ def local_filesystem_save_strategy(filepath_list, catalogue_name):
     """Function to save files to the local filesystem, using catalogue_name for directory names."""
     print("Saving to local filesystem")
 
-    base_path = os.environ.get("DESTINATION_PATH")
+    base_path = os.environ.get("FILESYSTEM_DESTINATION_PATH")
 
     if not base_path:
-        error_message = "Missing DESTINATION_PATH environment variable."
+        error_message = "Missing FILESYSTEM_DESTINATION_PATH environment variable."
         print(error_message)
         return {"success": False, "error": error_message}
     directory_prefix = os.environ.get("CATALOGUE_PREFIX", "")

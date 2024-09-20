@@ -9,6 +9,7 @@ from .domain.task_state import TaskState
 from .domain.task_model_services import (
     reorder_priorities_to_updated_task,
     reorder_task_priorities_after_unset,
+    clean_up_stale_priorities,
 )
 
 infrastructure_safe_characters_validator = RegexValidator(
@@ -56,7 +57,7 @@ class DownloadTask(models.Model):
 
     @transaction.atomic
     def save(self, *args, **kwargs):
-        print(self)
+        clean_up_stale_priorities()
         is_new = self._state.adding
         is_pending = self.state == TaskState.PENDING.value
         new_priority = self.priority
@@ -75,6 +76,7 @@ class DownloadTask(models.Model):
         self.priority = new_priority
         super().save(*args, **kwargs)
 
+        print(self.state)
         if not is_new and is_pending:
             reorder_priorities_to_updated_task(self)
 
