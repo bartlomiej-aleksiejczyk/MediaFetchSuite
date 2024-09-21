@@ -1,6 +1,6 @@
 import enum
 import os
-import json
+import re
 import tempfile
 import logging
 import shutil
@@ -128,11 +128,11 @@ def download_single_audio_highest_quality(url):
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
-            print(json.dumps(info_dict))
             if info_dict:
-                filename = info_dict["requested_downloads"]["filepath"]
-                file_paths.append(filename)
-                print(f"Downloaded audio to {filename}")
+                file_paths = [
+                    item["filepath"] for item in info_dict["requested_downloads"]
+                ]
+                print(f"Downloaded audio to {file_paths}")
             else:
                 error_message = "Failed to retrieve audio information."
                 logging.error(error_message)
@@ -182,8 +182,9 @@ def download_audio_playlist_highest_quality(url):
                 for entry in info_dict["entries"]:
                     if entry:
                         filename = ydl.prepare_filename(entry)
-                        file_paths.append(filename)
-                        print(f"Downloaded audio to {filename}")
+                        mp3_filename = re.sub(r"\.[^.]+$", ".mp3", filename)
+                        file_paths.append(mp3_filename)
+                        print(f"Downloaded audio to {mp3_filename}")
                     else:
                         error_message = "Failed to retrieve information for one or more playlist entries."
                         logging.error(error_message)

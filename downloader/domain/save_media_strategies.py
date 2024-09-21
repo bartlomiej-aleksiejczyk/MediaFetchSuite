@@ -8,6 +8,7 @@ from botocore.exceptions import ClientError
 def s3_save_strategy(filepath_list, catalogue_name):
     """Function to save files to S3."""
     print("Saving to S3")
+    print(filepath_list)
     s3_endpoint_url = os.environ.get("S3_ENDPOINT_URL")
     s3_access_key_id = os.environ.get("S3_ACCESS_KEY_ID")
     s3_secret_access_key = os.environ.get("S3_SECRET_ACCESS_KEY")
@@ -55,6 +56,7 @@ def s3_save_strategy(filepath_list, catalogue_name):
 
     errors = []
     for filepath in filepath_list:
+        print("dfsfdsfsdddddddddddd")
         try:
             filename = os.path.basename(filepath)
             s3_client.upload_file(filepath, bucket_name, filename)
