@@ -1,14 +1,20 @@
 import enum
 import os
 import shutil
+import logging
 import boto3
 from botocore.exceptions import ClientError
 
 
+# Set up Django logger
+logger = logging.getLogger(__name__)
+
+
 def s3_save_strategy(filepath_list, catalogue_name):
     """Function to save files to S3."""
-    print("Saving to S3")
-    print(filepath_list)
+    logger.info("Saving to S3")
+    logger.debug(f"Filepath list: {filepath_list}")
+
     s3_endpoint_url = os.environ.get("S3_ENDPOINT_URL")
     s3_access_key_id = os.environ.get("S3_ACCESS_KEY_ID")
     s3_secret_access_key = os.environ.get("S3_SECRET_ACCESS_KEY")
@@ -21,7 +27,7 @@ def s3_save_strategy(filepath_list, catalogue_name):
     bucket_name = f"{bucket_prefix}{catalogue_name}"
     if not s3_access_key_id or not s3_secret_access_key or not bucket_name:
         error_message = "Missing S3 credentials or S3 bucket name."
-        print(error_message)
+        logger.error(error_message)
         return {"success": False, "error": error_message}
 
     try:
@@ -40,48 +46,48 @@ def s3_save_strategy(filepath_list, catalogue_name):
             != 200
         ):
             s3_client.create_bucket(Bucket=bucket_name)
-            print(f"Created bucket {bucket_name}")
+            logger.info(f"Created bucket {bucket_name}")
     except ClientError as e:
         if e.response["Error"]["Code"] == "404":
             s3_client.create_bucket(Bucket=bucket_name)
-            print(f"Created bucket {bucket_name}")
+            logger.info(f"Created bucket {bucket_name}")
         else:
             error_message = f"Error accessing or creating bucket {bucket_name}: {e}"
-            print(error_message)
+            logger.error(error_message)
             return {"success": False, "error": error_message}
     except Exception as e:
         error_message = f"Error creating S3 client: {e}"
-        print(error_message)
+        logger.error(error_message)
         return {"success": False, "error": error_message}
 
     errors = []
     for filepath in filepath_list:
-        print("dfsfdsfsdddddddddddd")
+        logger.debug(f"Processing file: {filepath}")
         try:
             filename = os.path.basename(filepath)
             s3_client.upload_file(filepath, bucket_name, filename)
-            print(f"Uploaded {filename} to S3 bucket {bucket_name}.")
+            logger.info(f"Uploaded {filename} to S3 bucket {bucket_name}.")
         except ClientError as e:
             error_message = f"Failed to upload {filepath} to S3: {e}"
-            print(error_message)
+            logger.error(error_message)
             errors.append(error_message)
         except FileNotFoundError:
             error_message = f"File not found: {filepath}"
-            print(error_message)
+            logger.error(error_message)
             errors.append(error_message)
         except Exception as e:
             error_message = f"Error uploading {filepath} to S3: {e}"
-            print(error_message)
+            logger.error(error_message)
             errors.append(error_message)
 
     if not errors:
         for filepath in filepath_list:
             try:
                 os.remove(filepath)
-                print(f"Deleted local file {filepath}.")
+                logger.info(f"Deleted local file {filepath}.")
             except Exception as e:
                 error_message = f"Error deleting file {filepath}: {e}"
-                print(error_message)
+                logger.error(error_message)
         return {"success": True}
     else:
         return {"success": False, "errors": errors}
@@ -89,27 +95,26 @@ def s3_save_strategy(filepath_list, catalogue_name):
 
 def local_filesystem_save_strategy(filepath_list, catalogue_name):
     """Function to save files to the local filesystem, using catalogue_name for directory names."""
-    print("Saving to local filesystem")
+    logger.info("Saving to local filesystem")
 
     base_path = os.environ.get("FILESYSTEM_DESTINATION_PATH")
 
     if not base_path:
         error_message = "Missing FILESYSTEM_DESTINATION_PATH environment variable."
-        print(error_message)
+        logger.error(error_message)
         return {"success": False, "error": error_message}
     directory_prefix = os.environ.get("CATALOGUE_PREFIX", "")
 
     directory_name = f"{directory_prefix}{catalogue_name}"
-
     destination_path = os.path.join(base_path, directory_name)
 
     if not os.path.isdir(destination_path):
         try:
             os.makedirs(destination_path)
-            print(f"Created directory {destination_path}")
+            logger.info(f"Created directory {destination_path}")
         except Exception as e:
             error_message = f"Failed to create directory {destination_path}: {e}"
-            print(error_message)
+            logger.error(error_message)
             return {"success": False, "error": error_message}
 
     errors = []
@@ -118,24 +123,24 @@ def local_filesystem_save_strategy(filepath_list, catalogue_name):
             filename = os.path.basename(filepath)
             dest_file_path = os.path.join(destination_path, filename)
             shutil.copy2(filepath, dest_file_path)
-            print(f"Copied {filename} to {destination_path}")
+            logger.info(f"Copied {filename} to {destination_path}")
         except FileNotFoundError:
             error_message = f"File not found: {filepath}"
-            print(error_message)
+            logger.error(error_message)
             errors.append(error_message)
         except Exception as e:
             error_message = f"Error copying {filepath} to {destination_path}: {e}"
-            print(error_message)
+            logger.error(error_message)
             errors.append(error_message)
 
     if not errors:
         for filepath in filepath_list:
             try:
                 os.remove(filepath)
-                print(f"Deleted local file {filepath}.")
+                logger.info(f"Deleted local file {filepath}.")
             except Exception as e:
                 error_message = f"Error deleting file {filepath}: {e}"
-                print(error_message)
+                logger.error(error_message)
         return {"success": True}
     else:
         return {"success": False, "errors": errors}
@@ -149,7 +154,7 @@ class MediaSaveStrategies(enum.Enum):
     )
     LOCAL_FILESYSTEM = (
         "LOCAL_FILESYSTEM_SAVE",
-        "Downloads choosen playlist using ytdlp with highest available quality.",
+        "Saves files to the local filesystem.",
         local_filesystem_save_strategy,
     )
 

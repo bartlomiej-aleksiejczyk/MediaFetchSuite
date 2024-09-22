@@ -7,14 +7,16 @@ import shutil
 import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
 
+# Set up Django logger
+logger = logging.getLogger(__name__)
+
 
 def download_single_video_highest_quality(urls):
     """
     Downloads a single video at the highest available quality.
     Returns a dictionary with success status and list of file paths.
     """
-    print(f"Downloading single video with highest quality. URL: {urls}")
-
+    logger.info("Downloading single video with highest quality. URL: %s", urls)
     temp_dir = tempfile.mkdtemp()
     ydl_opts = {
         "outtmpl": os.path.join(temp_dir, "%(title)s.%(ext)s"),
@@ -32,21 +34,21 @@ def download_single_video_highest_quality(urls):
             if info_dict:
                 filename = ydl.prepare_filename(info_dict)
                 file_paths.append(filename)
-                print(f"Downloaded video to {filename}")
+                logger.info(f"Downloaded video to {filename}")
             else:
                 error_message = "Failed to retrieve video information."
-                logging.error(error_message)
+                logger.error(error_message)
                 shutil.rmtree(temp_dir)
                 return {"success": False, "error": error_message}
         return {"success": True, "file_paths": file_paths}
     except (DownloadError, ExtractorError) as e:
         error_message = f"Error downloading video: {e}"
-        logging.error(error_message)
+        logger.error(error_message)
         shutil.rmtree(temp_dir)
         return {"success": False, "error": error_message}
     except Exception as e:
         error_message = f"Unexpected error: {e}"
-        logging.error(error_message)
+        logger.error(error_message)
         shutil.rmtree(temp_dir)
         return {"success": False, "error": error_message}
 
@@ -57,19 +59,19 @@ def download_audios_from_list(urls_list):
     Uses the highest available quality for each audio.
     Returns a dictionary with success status and list of file paths.
     """
-    print(f"Downloading audios from list.")
+    logger.info("Downloading audios from list.")
 
     # Split the list of URLs by newline and strip any extra spaces
     urlss = [urls.strip() for urls in urls_list.split("\n") if urls.strip()]
 
     all_file_paths = []
     for urls in urlss:
-        print(f"Processing URL: {urls}")
+        logger.info(f"Processing URL: {urls}")
         result = download_single_audio_highest_quality(urls)
         if result["success"]:
             all_file_paths.extend(result["file_paths"])
         else:
-            print(f"Failed to download from URL: {urls}")
+            logger.error(f"Failed to download from URL: {urls}")
             return {"success": False, "error": result.get("error", "Unknown error")}
 
     return {"success": True, "file_paths": all_file_paths}
@@ -81,18 +83,18 @@ def download_videos_from_list(urls_list):
     Uses the highest quality for each video.
     Returns a dictionary with success status and list of file paths.
     """
-    print(f"Downloading videos from list.")
+    logger.info("Downloading videos from list.")
 
     urlss = [urls.strip() for urls in urls_list.split("\n") if urls.strip()]
 
     all_file_paths = []
     for urls in urlss:
-        print(f"Processing URL: {urls}")
+        logger.info(f"Processing URL: {urls}")
         result = download_single_video_highest_quality(urls)
         if result["success"]:
             all_file_paths.extend(result["file_paths"])
         else:
-            print(f"Failed to download from URL: {urls}")
+            logger.error(f"Failed to download from URL: {urls}")
             return {"success": False, "error": result.get("error", "Unknown error")}
 
     return {"success": True, "file_paths": all_file_paths}
@@ -103,7 +105,7 @@ def download_video_playlist_highest_quality(urls):
     Downloads a playlist of videos at the highest available quality.
     Returns a dictionary with success status and list of file paths.
     """
-    print(f"Downloading video playlist with highest quality. URL: {urls}")
+    logger.info(f"Downloading video playlist with highest quality. URL: {urls}")
 
     temp_dir = tempfile.mkdtemp()
     ydl_opts = {
@@ -123,26 +125,26 @@ def download_video_playlist_highest_quality(urls):
                     if entry:
                         filename = ydl.prepare_filename(entry)
                         file_paths.append(filename)
-                        print(f"Downloaded video to {filename}")
+                        logger.info(f"Downloaded video to {filename}")
                     else:
                         error_message = "Failed to retrieve information for one or more playlist entries."
-                        logging.error(error_message)
+                        logger.error(error_message)
                         shutil.rmtree(temp_dir)
                         return {"success": False, "error": error_message}
             else:
                 error_message = "Failed to retrieve playlist information."
-                logging.error(error_message)
+                logger.error(error_message)
                 shutil.rmtree(temp_dir)
                 return {"success": False, "error": error_message}
         return {"success": True, "file_paths": file_paths}
     except (DownloadError, ExtractorError) as e:
         error_message = f"Error downloading playlist: {e}"
-        logging.error(error_message)
+        logger.error(error_message)
         shutil.rmtree(temp_dir)
         return {"success": False, "error": error_message}
     except Exception as e:
         error_message = f"Unexpected error: {e}"
-        logging.error(error_message)
+        logger.error(error_message)
         shutil.rmtree(temp_dir)
         return {"success": False, "error": error_message}
 
@@ -152,7 +154,7 @@ def download_single_audio_highest_quality(urls):
     Downloads a single audio track at the highest available quality.
     Returns a dictionary with success status and list of file paths.
     """
-    print(f"Downloading single audio with highest quality. URL: {urls}")
+    logger.info(f"Downloading single audio with highest quality. URL: {urls}")
 
     temp_dir = tempfile.mkdtemp()
     ydl_opts = {
@@ -179,21 +181,21 @@ def download_single_audio_highest_quality(urls):
                 file_paths = [
                     item["filepath"] for item in info_dict["requested_downloads"]
                 ]
-                print(f"Downloaded audio to {file_paths}")
+                logger.info(f"Downloaded audio to {file_paths}")
             else:
                 error_message = "Failed to retrieve audio information."
-                logging.error(error_message)
+                logger.error(error_message)
                 shutil.rmtree(temp_dir)
                 return {"success": False, "error": error_message}
         return {"success": True, "file_paths": file_paths}
     except (DownloadError, ExtractorError) as e:
         error_message = f"Error downloading audio: {e}"
-        logging.error(error_message)
+        logger.error(error_message)
         shutil.rmtree(temp_dir)
         return {"success": False, "error": error_message}
     except Exception as e:
         error_message = f"Unexpected error: {e}"
-        logging.error(error_message)
+        logger.error(error_message)
         shutil.rmtree(temp_dir)
         return {"success": False, "error": error_message}
 
@@ -203,7 +205,7 @@ def download_audio_playlist_highest_quality(urls):
     Downloads an audio playlist at the highest available quality and converts it to MP3.
     Returns a dictionary with success status and list of file paths.
     """
-    print(f"Downloading audio playlist with highest quality. URL: {urls}")
+    logger.info(f"Downloading audio playlist with highest quality. URL: {urls}")
 
     temp_dir = tempfile.mkdtemp()
     ydl_opts = {
@@ -231,26 +233,26 @@ def download_audio_playlist_highest_quality(urls):
                         filename = ydl.prepare_filename(entry)
                         mp3_filename = re.sub(r"\.[^.]+$", ".mp3", filename)
                         file_paths.append(mp3_filename)
-                        print(f"Downloaded audio to {mp3_filename}")
+                        logger.info(f"Downloaded audio to {mp3_filename}")
                     else:
                         error_message = "Failed to retrieve information for one or more playlist entries."
-                        logging.error(error_message)
+                        logger.error(error_message)
                         shutil.rmtree(temp_dir)
                         return {"success": False, "error": error_message}
             else:
                 error_message = "Failed to retrieve playlist information."
-                logging.error(error_message)
+                logger.error(error_message)
                 shutil.rmtree(temp_dir)
                 return {"success": False, "error": error_message}
         return {"success": True, "file_paths": file_paths}
     except (DownloadError, ExtractorError) as e:
         error_message = f"Error downloading playlist: {e}"
-        logging.error(error_message)
+        logger.error(error_message)
         shutil.rmtree(temp_dir)
         return {"success": False, "error": error_message}
     except Exception as e:
         error_message = f"Unexpected error: {e}"
-        logging.error(error_message)
+        logger.error(error_message)
         shutil.rmtree(temp_dir)
         return {"success": False, "error": error_message}
 
