@@ -71,7 +71,7 @@ def process_download_and_save_task(task_id):
         if not download_strategy_func:
             raise ValueError(f"Unknown download strategy: {task.download_strategy}")
 
-        download_result = download_strategy_func(task.url)
+        download_result = download_strategy_func(task.urls)
 
         if not download_result.get("success"):
             raise DownloadError(
@@ -110,16 +110,16 @@ def process_download_and_save_task(task_id):
 class DownloadError(Exception):
     """Exception raised when a download error occurs."""
 
-    def __init__(self, message, url=None, original_exception=None):
+    def __init__(self, message, urls=None, original_exception=None):
         self.message = message
-        self.url = url
+        self.urls = urls
         self.original_exception = original_exception
         super().__init__(message)
 
     def __str__(self):
         info = f"DownloadError: {self.message}"
-        if self.url:
-            info += f" | URL: {self.url}"
+        if self.urls:
+            info += f" | URLs: {self.urls}"
         if self.original_exception:
             info += f" | Original Exception: {str(self.original_exception)}"
         return info

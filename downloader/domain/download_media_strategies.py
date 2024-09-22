@@ -8,12 +8,12 @@ import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
 
 
-def download_single_video_highest_quality(url):
+def download_single_video_highest_quality(urls):
     """
     Downloads a single video at the highest available quality.
     Returns a dictionary with success status and list of file paths.
     """
-    print(f"Downloading single video with highest quality. URL: {url}")
+    print(f"Downloading single video with highest quality. URL: {urls}")
 
     temp_dir = tempfile.mkdtemp()
     ydl_opts = {
@@ -28,7 +28,7 @@ def download_single_video_highest_quality(url):
     file_paths = []
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=True)
+            info_dict = ydl.extract_info(urls, download=True)
             if info_dict:
                 filename = ydl.prepare_filename(info_dict)
                 file_paths.append(filename)
@@ -51,12 +51,59 @@ def download_single_video_highest_quality(url):
         return {"success": False, "error": error_message}
 
 
-def download_video_playlist_highest_quality(url):
+def download_audios_from_list(urls_list):
+    """
+    Downloads audio files from a list of URLs, each separated by a newline.
+    Uses the highest available quality for each audio.
+    Returns a dictionary with success status and list of file paths.
+    """
+    print(f"Downloading audios from list.")
+
+    # Split the list of URLs by newline and strip any extra spaces
+    urlss = [urls.strip() for urls in urls_list.split("\n") if urls.strip()]
+
+    all_file_paths = []
+    for urls in urlss:
+        print(f"Processing URL: {urls}")
+        result = download_single_audio_highest_quality(urls)
+        if result["success"]:
+            all_file_paths.extend(result["file_paths"])
+        else:
+            print(f"Failed to download from URL: {urls}")
+            return {"success": False, "error": result.get("error", "Unknown error")}
+
+    return {"success": True, "file_paths": all_file_paths}
+
+
+def download_videos_from_list(urls_list):
+    """
+    Downloads videos from a list of URLs, each separated by a newline.
+    Uses the highest quality for each video.
+    Returns a dictionary with success status and list of file paths.
+    """
+    print(f"Downloading videos from list.")
+
+    urlss = [urls.strip() for urls in urls_list.split("\n") if urls.strip()]
+
+    all_file_paths = []
+    for urls in urlss:
+        print(f"Processing URL: {urls}")
+        result = download_single_video_highest_quality(urls)
+        if result["success"]:
+            all_file_paths.extend(result["file_paths"])
+        else:
+            print(f"Failed to download from URL: {urls}")
+            return {"success": False, "error": result.get("error", "Unknown error")}
+
+    return {"success": True, "file_paths": all_file_paths}
+
+
+def download_video_playlist_highest_quality(urls):
     """
     Downloads a playlist of videos at the highest available quality.
     Returns a dictionary with success status and list of file paths.
     """
-    print(f"Downloading video playlist with highest quality. URL: {url}")
+    print(f"Downloading video playlist with highest quality. URL: {urls}")
 
     temp_dir = tempfile.mkdtemp()
     ydl_opts = {
@@ -70,7 +117,7 @@ def download_video_playlist_highest_quality(url):
     file_paths = []
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=True)
+            info_dict = ydl.extract_info(urls, download=True)
             if info_dict and "entries" in info_dict:
                 for entry in info_dict["entries"]:
                     if entry:
@@ -100,12 +147,12 @@ def download_video_playlist_highest_quality(url):
         return {"success": False, "error": error_message}
 
 
-def download_single_audio_highest_quality(url):
+def download_single_audio_highest_quality(urls):
     """
     Downloads a single audio track at the highest available quality.
     Returns a dictionary with success status and list of file paths.
     """
-    print(f"Downloading single audio with highest quality. URL: {url}")
+    print(f"Downloading single audio with highest quality. URL: {urls}")
 
     temp_dir = tempfile.mkdtemp()
     ydl_opts = {
@@ -127,7 +174,7 @@ def download_single_audio_highest_quality(url):
     file_paths = []
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=True)
+            info_dict = ydl.extract_info(urls, download=True)
             if info_dict:
                 file_paths = [
                     item["filepath"] for item in info_dict["requested_downloads"]
@@ -151,12 +198,12 @@ def download_single_audio_highest_quality(url):
         return {"success": False, "error": error_message}
 
 
-def download_audio_playlist_highest_quality(url):
+def download_audio_playlist_highest_quality(urls):
     """
     Downloads an audio playlist at the highest available quality and converts it to MP3.
     Returns a dictionary with success status and list of file paths.
     """
-    print(f"Downloading audio playlist with highest quality. URL: {url}")
+    print(f"Downloading audio playlist with highest quality. URL: {urls}")
 
     temp_dir = tempfile.mkdtemp()
     ydl_opts = {
@@ -177,7 +224,7 @@ def download_audio_playlist_highest_quality(url):
     file_paths = []
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=True)
+            info_dict = ydl.extract_info(urls, download=True)
             if info_dict and "entries" in info_dict:
                 for entry in info_dict["entries"]:
                     if entry:
@@ -228,6 +275,16 @@ class MediaDownloadStrategies(enum.Enum):
         "video_playlist_highest",
         "Downloads playlist using ytdlp with highest available quality.",
         download_video_playlist_highest_quality,
+    )
+    VIDEO_LIST_HIGHEST = (
+        "video_list_highest",
+        "Downloads videos from a list of URLs separated by newlines using ytdlp at the highest available quality.",
+        download_videos_from_list,
+    )
+    AUDIO_LIST_HIGHEST = (
+        "audio_list_highest",
+        "Downloads audios from a list of URLs separated by newlines using ytdlp at the highest available quality.",
+        download_audios_from_list,
     )
 
     def __new__(cls, value, description, strategy_function):

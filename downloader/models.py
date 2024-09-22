@@ -19,7 +19,10 @@ infrastructure_safe_characters_validator = RegexValidator(
 
 
 class DownloadTask(models.Model):
-    url = models.URLField()
+    urls = models.TextField(
+        blank=True,
+        help_text="Enter multiple URLs separated by commas or new lines.",
+    )
     download_strategy = models.CharField(
         max_length=50,
         choices=MediaDownloadStrategies.choices(),
@@ -48,7 +51,7 @@ class DownloadTask(models.Model):
         ordering = ["-priority", "created_at"]
 
     def __str__(self):
-        return f"Task {self.id}: {self.url}"
+        return f"Task {self.id}: {self.urls}"
 
     @transaction.atomic
     def delete(self, *args, **kwargs):
@@ -76,7 +79,6 @@ class DownloadTask(models.Model):
         self.priority = new_priority
         super().save(*args, **kwargs)
 
-        print(self.state)
         if not is_new and is_pending:
             reorder_priorities_to_updated_task(self)
 

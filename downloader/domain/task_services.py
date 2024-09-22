@@ -6,7 +6,9 @@ from .task_state import TaskState
 
 
 @transaction.atomic
-def create_and_enqueue_download_task(url, download_strategy, save_strategy, priority=0):
+def create_and_enqueue_download_task(
+    urls, download_strategy, save_strategy, priority=0
+):
     """
     Creates a DownloadTask instance and enqueues it for processing if creation is successful.
     Ensures atomicity of database operations and returns a consistent response suitable for views.
@@ -15,7 +17,7 @@ def create_and_enqueue_download_task(url, download_strategy, save_strategy, prio
 
     try:
         task = DownloadTask(
-            url=url,
+            urls=urls,
             download_strategy=download_strategy,
             save_strategy=save_strategy,
             priority=priority,
@@ -33,5 +35,3 @@ def create_and_enqueue_download_task(url, download_strategy, save_strategy, prio
     except DatabaseError as e:
         response["error"] = f"Database error: {str(e)}"
     return response
-
-
