@@ -1,4 +1,5 @@
 from django.db import models, transaction
+from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Max
 from django.core.validators import RegexValidator
@@ -52,6 +53,9 @@ class DownloadTask(models.Model):
 
     def __str__(self):
         return f"Task {self.id}: {self.urls}"
+
+    def get_absolute_url(self):
+        return reverse("delete_task", kwargs={"pk": self.pk})
 
     @transaction.atomic
     def delete(self, *args, **kwargs):

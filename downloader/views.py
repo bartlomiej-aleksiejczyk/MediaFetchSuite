@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from iommi import Form, Table, Column, Page, Action
 from .models import DownloadTask, TaskExecutionWindow
 
@@ -9,7 +9,16 @@ class TaskListView(Page):
         attrs__href="new/",
     )
 
-    tasks_table = Table(auto__model=DownloadTask)
+    tasks_table = Table(
+        auto__model=DownloadTask,
+        columns__delete=Column.delete(),
+    )
+
+
+def delete_task(request, pk):
+    task = get_object_or_404(DownloadTask, pk=pk)
+    task.delete()
+    return redirect("/tasks/")
 
 
 class NewTaskView(Page):
