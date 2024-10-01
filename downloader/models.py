@@ -55,11 +55,11 @@ class DownloadTask(models.Model):
         return f"Task {self.id}: {self.urls}"
 
     def get_absolute_url(self):
-        return reverse("delete_task", kwargs={"pk": self.pk})
+        return reverse("view_task", kwargs={"pk": self.pk})
 
     @transaction.atomic
     def delete(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        super().delete(*args, **kwargs)
         reorder_task_priorities_after_unset()
 
     @transaction.atomic

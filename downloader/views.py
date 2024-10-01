@@ -18,7 +18,12 @@ class TaskListView(Page):
 def delete_task(request, pk):
     task = get_object_or_404(DownloadTask, pk=pk)
     task.delete()
-    return redirect("/tasks/")
+    return redirect("/download/tasks/")
+
+
+def view_task(request, pk):
+    task = get_object_or_404(DownloadTask, pk=pk)
+    return "reree"
 
 
 class NewTaskView(Page):
