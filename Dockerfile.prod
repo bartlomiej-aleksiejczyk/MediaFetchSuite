@@ -22,3 +22,4 @@ RUN pip install --user --upgrade pip && \
     pip install --user -r requirements.txt
 
 COPY . /app/
+RUN chmod -R 755 /app
