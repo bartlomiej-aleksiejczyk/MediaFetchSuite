@@ -6,18 +6,19 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
-    gcc \  
-    ffmpeg \           
+    gcc \               # Required for compiling some Python packages
+    ffmpeg \            # Multimedia handling, if needed for the app
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -ms /bin/bash appuser
 
-ENV PATH="/home/appuser/.local/bin:$PATH"
+ENV HOME=/home/appuser
+ENV PATH="$HOME/.local/bin:$PATH"
+
+USER appuser
 
 COPY requirements.txt /app/
 RUN pip install --user --upgrade pip && \
     pip install --user -r requirements.txt
 
 COPY . /app/
-
-USER appuser
