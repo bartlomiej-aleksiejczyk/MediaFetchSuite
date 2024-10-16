@@ -6,8 +6,8 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
-    gcc \               # Required for compiling some Python packages
-    ffmpeg \            # Multimedia handling, if needed for the app
+    gcc \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -ms /bin/bash appuser
