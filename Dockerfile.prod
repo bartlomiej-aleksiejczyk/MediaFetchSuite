@@ -10,15 +10,9 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -ms /bin/bash appuser
-
 COPY . /app/
-RUN chown -R appuser:appuser /app
 
-ENV HOME=/home/appuser
 ENV PATH="$HOME/.local/bin:$PATH"
-
-USER appuser
 
 COPY requirements.txt /app/
 RUN pip install --user --upgrade pip && \
