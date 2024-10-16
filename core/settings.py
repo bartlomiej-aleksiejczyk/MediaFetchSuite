@@ -161,7 +161,7 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "info.log",
+            "filename": "tmp/info.log",
             "maxBytes": 1024 * 1024 * 5,  # 5 MB
             "backupCount": 5,  # keep at most 5 log files
             "formatter": "verbose",
