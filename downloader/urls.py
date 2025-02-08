@@ -1,22 +1,19 @@
 from django.urls import path
-from iommi import Form, Table, Column
-from .views import TaskListView, NewTaskView, delete_task, view_task
-
-from .models import DownloadTask, TaskExecutionWindow
+from .views import (
+    TaskListView,
+    TaskDetailView,
+    TaskCreateView,
+    TaskDeleteView,
+    ExecutionWindowListView,
+    ExecutionWindowCreateView,
+)
 
 urlpatterns = [
-    path("tasks/", TaskListView().as_view(), name="task_list"),
-    path("tasks/<int:pk>/delete/", delete_task, name="delete_task"),
-    path("tasks/<int:pk>/", view_task, name="view_task"),
-    path(
-        "tasks/new/",
-        NewTaskView().as_view(),
-    ),
-    path(
-        "time-windows/",
-        Table(
-            auto__model=TaskExecutionWindow,
-        ).as_view(),
-    ),
-    path("time-windows/new/", Form.create(auto__model=TaskExecutionWindow).as_view()),
+    path("tasks/", TaskListView.as_view(), name="task_list"),
+    path("tasks/new/", TaskCreateView.as_view(), name="new_task"),
+    path("tasks/<int:pk>/", TaskDetailView.as_view(), name="task_detail"),
+    path("tasks/<int:pk>/delete/", TaskDeleteView.as_view(), name="delete_task"),
+
+    path("time-windows/", ExecutionWindowListView.as_view(), name="time_windows_list"),
+    path("time-windows/new/", ExecutionWindowCreateView.as_view(), name="new_time_window"),
 ]

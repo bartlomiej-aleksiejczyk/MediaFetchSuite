@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Task Details{% endblock %}
+
+{% block content %}
+    <h2>Task Details</h2>
+    <p><strong>URLs:</strong> {{ task.urls }}</p>
+    <p><strong>Download Strategy:</strong> {{ task.get_download_strategy_display }}</p>
+    <p><strong>Save Strategy:</strong> {{ task.get_save_strategy_display }}</p>
+    <p><strong>State:</strong> {{ task.get_state_display }}</p>
+    <p><strong>Priority:</strong> {{ task.priority }}</p>
+    <p><strong>Created At:</strong> {{ task.created_at }}</p>
+    <a href="{% url 'task_list' %}" class="btn btn-secondary">Back to List</a>
+{% endblock %}

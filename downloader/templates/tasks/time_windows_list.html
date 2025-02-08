@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Execution Windows{% endblock %}
+
+{% block content %}
+    <h2>Execution Windows</h2>
+    <a href="{% url 'new_time_window' %}" class="btn btn-primary">Add New Window</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Start Time</th>
+                <th>End Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for window in windows %}
+                <tr>
+                    <td>{{ window.start_time }}</td>
+                    <td>{{ window.end_time }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2">No execution windows available.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% include "tasks/pagination.html" %}
+{% endblock %}

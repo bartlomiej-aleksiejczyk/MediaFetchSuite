@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Task List{% endblock %}
+
+{% block content %}
+    <h2>All Tasks</h2>
+    <a href="{% url 'new_task' %}" class="btn btn-primary">Create New Task</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>URLs</th>
+                <th>Download Strategy</th>
+                <th>Save Strategy</th>
+                <th>State</th>
+                <th>Priority</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+                <tr>
+                    <td>{{ task.id }}</td>
+                    <td>{{ task.urls }}</td>
+                    <td>{{ task.get_download_strategy_display }}</td>
+                    <td>{{ task.get_save_strategy_display }}</td>
+                    <td>{{ task.get_state_display }}</td>
+                    <td>{{ task.priority }}</td>
+                    <td>{{ task.created_at }}</td>
+                    <td>
+                        <a href="{% url 'task_detail' task.pk %}" class="btn btn-info">View</a>
+                        <a href="{% url 'delete_task' task.pk %}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8">No tasks available.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% include "tasks/pagination.html" %}
+{% endblock %}

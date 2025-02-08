@@ -1,43 +1,55 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
-from iommi import Form, Table, Column, Page, Action
+from django.views.generic import ListView, CreateView, DetailView, DeleteView
+from django.urls import reverse_lazy
 from .models import DownloadTask, TaskExecutionWindow
 
 
-class TaskListView(Page):
-    new_task_button = Action(
-        display_name="Create New Task",
-        attrs__href="new/",
-    )
-
-    tasks_table = Table(
-        auto__model=DownloadTask,
-        columns__delete=Column.delete(),
-    )
+# ✅ Task List View (With Pagination)
+class TaskListView(ListView):
+    model = DownloadTask
+    template_name = "tasks/task_list.html"
+    context_object_name = "tasks"
+    paginate_by = 10  # Show 10 tasks per page
 
 
-def delete_task(request, pk):
-    task = get_object_or_404(DownloadTask, pk=pk)
-    task.delete()
-    return redirect("/download/tasks/")
+# ✅ Task Detail View
+class TaskDetailView(DetailView):
+    model = DownloadTask
+    template_name = "tasks/task_detail.html"
+    context_object_name = "task"
 
 
-def view_task(request, pk):
-    task = get_object_or_404(DownloadTask, pk=pk)
-    return "reree"
+# ✅ Task Creation View
+class TaskCreateView(CreateView):
+    model = DownloadTask
+    template_name = "tasks/new_task.html"
+    fields = [
+        "urls",
+        "download_strategy",
+        "save_strategy",
+        "catalogue_name",
+    ]
+    success_url = reverse_lazy("task_list")
 
 
-class NewTaskView(Page):
-    go_back_button = Action(
-        display_name="Go Back",
-        attrs__href="/download/tasks/",
-    )
-    task_form = Form.create(
-        auto__model=DownloadTask,
-        auto__exclude=[
-            "created_at",
-            "updated_at",
-            "priority",
-            "error_message",
-            "state",
-        ],
-    )
+# ✅ Task Delete View
+class TaskDeleteView(DeleteView):
+    model = DownloadTask
+    template_name = "tasks/delete_task.html"
+    success_url = reverse_lazy("task_list")
+
+
+# ✅ Execution Window List View (With Pagination)
+class ExecutionWindowListView(ListView):
+    model = TaskExecutionWindow
+    template_name = "tasks/time_windows_list.html"
+    context_object_name = "windows"
+    paginate_by = 10  # Show 10 execution windows per page
+
+
+class ExecutionWindowCreateView(CreateView):
+    model = TaskExecutionWindow
+    template_name = "tasks/new_execution_window.html"  # This template must exist
+    fields = ["start_time", "end_time"]
+    success_url = reverse_lazy("time_windows_list")

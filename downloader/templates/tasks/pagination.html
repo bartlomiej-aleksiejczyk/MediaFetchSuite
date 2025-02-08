@@ -1,0 +1,86 @@
+<nav aria-label="Pagination">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">First</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+        {% endif %}
+
+        <li class="page-item active">
+            <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        </li>
+
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+<style>
+    /* Pagination Container */
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+/* Pagination Items */
+.pagination .page-item {
+    margin: 0 5px;
+}
+
+/* Page Links */
+.pagination .page-link {
+    display: block;
+    padding: 8px 12px;
+    color: var(--color-text-primary);
+    background: #ffffff;
+    border: 1px solid var(--color-primary);
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hover Effect */
+.pagination .page-link:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+/* Active Page */
+.pagination .active .page-link {
+    background: var(--color-primary);
+    color: white;
+    font-weight: bold;
+    cursor: default;
+    border: 1px solid var(--color-primary);
+}
+
+/* Disabled Links */
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background: #e9ecef;
+    border: 1px solid #dee2e6;
+    cursor: not-allowed;
+}
+
+/* Responsive: Stack Pagination on Smaller Screens */
+@media (max-width: 600px) {
+    .pagination {
+        flex-wrap: wrap;
+    }
+    .pagination .page-item {
+        margin-bottom: 5px;
+    }
+}
+
+</style>
