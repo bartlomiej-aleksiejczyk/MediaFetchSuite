@@ -1,7 +1,8 @@
-FROM python:3.12-slim as base
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH=/app
 
 WORKDIR /app
 
@@ -10,17 +11,10 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
+COPY . /app/
 
-RUN useradd -ms /bin/bash appuser
-USER appuser
+ENV PATH="$HOME/.local/bin:$PATH"
 
 COPY requirements.txt /app/
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
-
-COPY . /app/
-
-FROM python:3.12-slim
-COPY --from=base /app /app
-WORKDIR /app
-USER appuser
