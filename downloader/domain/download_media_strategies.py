@@ -8,7 +8,7 @@ import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
 
 # Set up Django logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("downloader")
 
 
 def download_single_video_highest_quality(urls):
@@ -120,9 +120,11 @@ def download_video_playlist_highest_quality(urls):
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(urls, download=True)
+            logger.info(f"Extracted info successfully")
             if info_dict and "entries" in info_dict:
                 for entry in info_dict["entries"]:
                     if entry:
+                        logger.info(f"Processing: {entry}")
                         filename = ydl.prepare_filename(entry)
                         file_paths.append(filename)
                         logger.info(f"Downloaded video to {filename}")

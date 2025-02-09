@@ -32,7 +32,7 @@ class DownloadTask(models.Model):
     save_strategy = models.CharField(
         max_length=50,
         choices=MediaSaveStrategies.choices(),
-        default=MediaSaveStrategies.S3_SAVE.value,
+        default=MediaSaveStrategies.LOCAL_FILESYSTEM.value,
     )
     state = models.CharField(
         max_length=20, choices=TaskState.choices, default=TaskState.PENDING.value

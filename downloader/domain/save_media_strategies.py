@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 
 
 # Set up Django logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("downloader")
 
 
 def s3_save_strategy(filepath_list, catalogue_name):

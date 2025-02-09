@@ -165,6 +165,11 @@ LOGGING = {
         },
     },
     "loggers": {
+        "downloader": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "django": {
             "handlers": ["console"],
             "level": "INFO",
