@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 
 # Set up Django logger
 logger = logging.getLogger("downloader")
-
+BASE_LOCAL_DIRECTORY = 'downloaded-media'
 
 def s3_save_strategy(filepath_list, catalogue_name):
     """Function to save files to S3."""
@@ -106,7 +106,7 @@ def local_filesystem_save_strategy(filepath_list, catalogue_name):
     directory_prefix = os.environ.get("CATALOGUE_PREFIX", "")
 
     directory_name = f"{directory_prefix}{catalogue_name}"
-    destination_path = os.path.join(base_path, directory_name)
+    destination_path = os.path.join(base_path, BASE_LOCAL_DIRECTORY, directory_name)
 
     if not os.path.isdir(destination_path):
         try:
