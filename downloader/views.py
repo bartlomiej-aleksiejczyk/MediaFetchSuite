@@ -11,6 +11,7 @@ class TaskListView(ListView):
     template_name = "tasks/task_list.html"
     context_object_name = "tasks"
     paginate_by = 10  # Show 10 tasks per page
+    ordering = ['-id']
 
 
 # ✅ Task Detail View

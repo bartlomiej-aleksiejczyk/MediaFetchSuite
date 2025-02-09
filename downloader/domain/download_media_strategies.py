@@ -275,7 +275,7 @@ class MediaDownloadStrategies(enum.Enum):
     )
     VIDEO_PLAYLIST_HIGHEST = (
         "video_playlist_highest",
-        "Downloads playlist using ytdlp with highest available quality.",
+        "Downloads videos playlist using ytdlp with highest available quality.",
         download_video_playlist_highest_quality,
     )
     VIDEO_LIST_HIGHEST = (

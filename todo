@@ -1,0 +1,3 @@
+* Update execution window as for now it only respects first objhect
+* Fix logging in when strategy is executing
+* Fix dangling tasks - the ones that were in "in progress" state during the shutdown and are in this state despite creashed
