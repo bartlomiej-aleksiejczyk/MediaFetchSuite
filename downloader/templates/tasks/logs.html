@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Delete Task{% endblock %}
+
+{% block content %}
+    <div class="">
+        <h2>Application Logs</h2>
+        <pre><code>{% for line in logs %}{{ line }}{% endfor %}</code></pre>
+    </div>
+{% endblock %}

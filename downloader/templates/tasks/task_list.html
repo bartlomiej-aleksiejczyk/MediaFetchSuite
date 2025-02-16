@@ -3,7 +3,7 @@
 
 {% block content %}
     <h2>All Tasks</h2>
-    <a href="{% url 'new_task' %}" class="btn btn-primary">Create New Task</a>
+    <a href="{% url 'downloader:new_task' %}" class="btn btn-primary">Create New Task</a>
     <table class="table">
         <thead>
             <tr>
@@ -28,8 +28,8 @@
                     <td>{{ task.priority }}</td>
                     <td>{{ task.created_at }}</td>
                     <td>
-                        <a href="{% url 'task_detail' task.pk %}" class="btn btn-info">View</a>
-                        <a href="{% url 'delete_task' task.pk %}" class="btn btn-danger">Delete</a>
+                        <a href="{% url 'downloader:task_detail' task.pk %}" class="btn btn-info">View</a>
+                        <a href="{% url 'downloader:delete_task' task.pk %}" class="btn btn-danger">Delete</a>
                     </td>
                 </tr>
             {% empty %}

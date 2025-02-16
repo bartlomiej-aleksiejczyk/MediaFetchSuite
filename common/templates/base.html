@@ -66,13 +66,13 @@
             fixedContent: {},
             content: [
                 {
-                    link: "{% url 'new_task' %}",
+                    link: "{% url 'downloader:new_task' %}",
                     defaultName: "New Task",
                     id: "new_task",
                     type: "link",
                 },
                 {
-                    link: "{% url 'task_list' %}",
+                    link: "{% url 'downloader:task_list' %}",
                     defaultName: "All Tasks",
                     id: "tasks",
                     type: "link",
@@ -83,13 +83,13 @@
                     id: "settings",
                     objects: [
                         {
-                            link: "{% url 'time_windows_list' %}",
+                            link: "{% url 'downloader:time_windows_list' %}",
                             defaultName: "List Windows",
                             id: "time_windows_list",
                             type: "link",
                         },
                         {
-                            link: "{% url 'new_time_window' %}",
+                            link: "{% url 'downloader:new_time_window' %}",
                             defaultName: "New Execution Window",
                             id: "new_time_window",
                             type: "link",

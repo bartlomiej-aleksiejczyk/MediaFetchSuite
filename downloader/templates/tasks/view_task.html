@@ -9,5 +9,5 @@
     <p><strong>State:</strong> {{ task.get_state_display }}</p>
     <p><strong>Priority:</strong> {{ task.priority }}</p>
     <p><strong>Created At:</strong> {{ task.created_at }}</p>
-    <a href="{% url 'task_list' %}" class="btn btn-secondary">Back to List</a>
+    <a href="{% url 'downloader:task_list' %}" class="btn btn-secondary">Back to List</a>
 {% endblock %}

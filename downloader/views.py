@@ -1,9 +1,12 @@
+import os
+
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, CreateView, DetailView, DeleteView
 from django.urls import reverse_lazy
 from .models import DownloadTask, TaskExecutionWindow
 
+LOG_FILE_PATH = 'logs/download-progress.log'
 
 # ✅ Task List View (With Pagination)
 class TaskListView(ListView):
@@ -31,14 +34,14 @@ class TaskCreateView(CreateView):
         "save_strategy",
         "catalogue_name",
     ]
-    success_url = reverse_lazy("task_list")
+    success_url = reverse_lazy("downloader:task_list")
 
 
 # ✅ Task Delete View
 class TaskDeleteView(DeleteView):
     model = DownloadTask
     template_name = "tasks/delete_task.html"
-    success_url = reverse_lazy("task_list")
+    success_url = reverse_lazy("downloader:task_list")
 
 
 # ✅ Execution Window List View (With Pagination)
@@ -53,4 +56,12 @@ class ExecutionWindowCreateView(CreateView):
     model = TaskExecutionWindow
     template_name = "tasks/new_execution_window.html"  # This template must exist
     fields = ["start_time", "end_time"]
-    success_url = reverse_lazy("time_windows_list")
+    success_url = reverse_lazy("downloader:time_windows_list")
+
+def log_view(request):
+    logs = []
+    if os.path.exists(LOG_FILE_PATH):
+        with open(LOG_FILE_PATH, 'r') as f:
+            logs = f.readlines()[-500:]  # Read last 50 log lines
+
+    return render(request, 'tasks/logs.html', {'logs': logs})

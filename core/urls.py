@@ -16,11 +16,13 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, reverse_lazy
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/", include("users.urls")),
     path("", include("common.urls")),
+    path('', RedirectView.as_view(url=reverse_lazy('downloader:task_logs'), permanent=True)),
     path("download/", include("downloader.urls")),
 ]

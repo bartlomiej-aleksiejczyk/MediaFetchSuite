@@ -163,12 +163,18 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/download-progress.log',  # Path to log file
+            'formatter': 'verbose',
+        },
     },
     "loggers": {
         "downloader": {
-            "handlers": ["console"],
+            "handlers": ["file"],
             "level": "DEBUG",
-            "propagate": False,
+            "propagate": True,
         },
         "django": {
             "handlers": ["console"],

@@ -6,7 +6,10 @@ from .views import (
     TaskDeleteView,
     ExecutionWindowListView,
     ExecutionWindowCreateView,
+    log_view
 )
+
+app_name = 'downloader'
 
 urlpatterns = [
     path("tasks/", TaskListView.as_view(), name="task_list"),
@@ -16,4 +19,6 @@ urlpatterns = [
 
     path("time-windows/", ExecutionWindowListView.as_view(), name="time_windows_list"),
     path("time-windows/new/", ExecutionWindowCreateView.as_view(), name="new_time_window"),
+    path("tasks/logs", log_view, name="task_logs"),
+
 ]
